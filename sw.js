@@ -3,7 +3,7 @@
    PWA offline cache + control de funciones con IA
    ============================================================ */
 
-const CACHE_NAME = 'bambulinu-v1.1';
+const CACHE_NAME = 'bambulinu-v1.2';
 const PRECACHE_ASSETS = [
   './',
   './index.html',

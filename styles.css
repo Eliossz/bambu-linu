@@ -983,25 +983,178 @@ dialog h2 { margin-bottom: 8px; }
 .argumento.arg-dragging { opacity: .35; transform: scale(.97); box-shadow: none; }
 .argumento.arg-over     { outline: 2px solid var(--bambu); outline-offset: 2px; }
 
-/* Preview de exportación Markdown */
+/* Preview de exportación — Vista Documento Bonito */
 .export-preview {
   margin-top: 24px;
-  border-radius: var(--r-md);
-  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 .export-preview-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 18px;
   background: var(--surface-2);
-  border-bottom: 1px solid var(--line);
-  font: 600 .88rem Inter, sans-serif;
+  border-bottom: 1.5px solid var(--line);
+  flex-wrap: wrap;
 }
+.export-preview-title {
+  font: 600 .95rem Fredoka, Inter, sans-serif;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.export-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.export-preview-visual {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--surface);
+}
+
+/* Estado vacío */
+.doc-empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted);
+}
+.doc-empty-icon {
+  font-size: 2.2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.doc-empty-text {
+  margin: 0;
+  font-size: .92rem;
+  max-width: 38ch;
+  margin-inline: auto;
+  line-height: 1.5;
+}
+
+/* Tarjeta de Conclusión Principal */
+.doc-concl-card {
+  border-radius: var(--r-md);
+  border: 2px solid var(--bambu);
+  background: color-mix(in srgb, var(--bambu) 10%, var(--surface));
+  padding: 16px 18px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bambu) 12%, transparent);
+}
+.doc-concl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bambu);
+  color: var(--carbon);
+  font: 700 .75rem Inter, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+.doc-concl-title {
+  margin: 0;
+  font: 600 1.25rem/1.4 Fredoka, Inter, sans-serif;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Argumentos */
+.doc-args-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.doc-arg-card {
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  border-left: 6px solid var(--arg-color, var(--bambu));
+  background: var(--arg-bg, var(--surface-2));
+  padding: 14px 16px;
+  transition: transform .18s var(--ease), box-shadow .18s;
+}
+.doc-arg-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.doc-arg-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.doc-arg-pill {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--arg-color, var(--bambu));
+  color: var(--carbon);
+  font: 700 .82rem/1 Fredoka, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.doc-arg-title {
+  margin: 0;
+  font: 600 1.02rem/1.4 Fredoka, Inter, sans-serif;
+  color: var(--text);
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+/* Datos de apoyo */
+.doc-datos-list {
+  list-style: none;
+  margin: 10px 0 0 0;
+  padding: 0 0 0 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.doc-dato-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font: 400 .9rem/1.45 Inter, sans-serif;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.doc-dato-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--arg-color, var(--bambu));
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+.doc-dato-text {
+  flex: 1;
+}
+
+/* Modo código Typst (oculto por defecto) */
 .export-preview pre {
-  margin: 0; padding: 16px;
+  margin: 0;
+  padding: 16px;
   font: 400 .85rem/1.65 'Courier New', Courier, monospace;
-  color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere;
-  background: var(--surface); max-height: 320px; overflow-y: auto;
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--surface-2);
+  max-height: 320px;
+  overflow-y: auto;
 }
 
 /* ============================================================

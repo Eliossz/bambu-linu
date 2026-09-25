@@ -1228,6 +1228,93 @@ Responde ÚNICAMENTE en JSON válido con este formato:
     return lines.join('\n').trimEnd();
   }
 
+  function buildCleanSummary() {
+    const e = state.estructura;
+    const lines = [];
+    if (e.conclusion && e.conclusion.trim()) {
+      lines.push(`🎯 CONCLUSIÓN:\n${e.conclusion.trim()}`);
+      lines.push('');
+    }
+    (e.argumentos || []).forEach((arg, i) => {
+      if (arg.texto && arg.texto.trim()) {
+        lines.push(`${i + 1}. ${arg.texto.trim()}`);
+      }
+      (arg.datos || []).forEach((d) => {
+        if (d.texto && d.texto.trim()) lines.push(`   • ${d.texto.trim()}`);
+      });
+      lines.push('');
+    });
+    return lines.join('\n').trim();
+  }
+
+  function updateVisualDoc(container) {
+    if (!container) return;
+    container.innerHTML = '';
+    const e = state.estructura;
+    const hasConcl = !!(e.conclusion && e.conclusion.trim());
+    const hasArgs = e.argumentos && e.argumentos.some((a) => (a.texto && a.texto.trim()) || (a.datos && a.datos.length > 0));
+
+    if (!hasConcl && !hasArgs) {
+      container.append(el('div', { class: 'doc-empty-state' },
+        el('span', { class: 'doc-empty-icon', 'aria-hidden': 'true', text: '🎋' }),
+        el('p', { class: 'doc-empty-text', text: 'Aquí verás florecer tu documento con formato limpio y colores cuando agregues una conclusión o uses "Borrador con IA".' })
+      ));
+      return;
+    }
+
+    const argPalette = [
+      { border: '#7BC47F', bg: 'color-mix(in srgb, #7BC47F 10%, var(--surface))' },
+      { border: '#5A96E3', bg: 'color-mix(in srgb, #5A96E3 10%, var(--surface))' },
+      { border: '#E78471', bg: 'color-mix(in srgb, #E78471 10%, var(--surface))' },
+      { border: '#A675E2', bg: 'color-mix(in srgb, #A675E2 10%, var(--surface))' },
+      { border: '#F0A348', bg: 'color-mix(in srgb, #F0A348 10%, var(--surface))' },
+    ];
+
+    if (hasConcl) {
+      container.append(el('div', { class: 'doc-concl-card' },
+        el('div', { class: 'doc-concl-badge' },
+          el('span', { text: '🎯 Conclusión Principal' })
+        ),
+        el('h3', { class: 'doc-concl-title', text: e.conclusion.trim() })
+      ));
+    }
+
+    if (hasArgs) {
+      const argsWrap = el('div', { class: 'doc-args-container' });
+      e.argumentos.forEach((arg, i) => {
+        const color = argPalette[i % argPalette.length];
+        const card = el('div', {
+          class: 'doc-arg-card',
+          style: `--arg-color: ${color.border}; --arg-bg: ${color.bg};`
+        });
+
+        const argHeader = el('div', { class: 'doc-arg-head' },
+          el('span', { class: 'doc-arg-pill', text: `${i + 1}` }),
+          el('h4', { class: 'doc-arg-title', text: arg.texto || '(Sin texto de argumento)' })
+        );
+        card.append(argHeader);
+
+        if (arg.datos && arg.datos.length > 0) {
+          const datosList = el('ul', { class: 'doc-datos-list' });
+          arg.datos.forEach((d) => {
+            if (d.texto && d.texto.trim()) {
+              datosList.append(el('li', { class: 'doc-dato-item' },
+                el('span', { class: 'doc-dato-dot', 'aria-hidden': 'true' }),
+                el('span', { class: 'doc-dato-text', text: d.texto.trim() })
+              ));
+            }
+          });
+          if (datosList.children.length > 0) {
+            card.append(datosList);
+          }
+        }
+
+        argsWrap.append(card);
+      });
+      container.append(argsWrap);
+    }
+  }
+
   let argDragging = null;
 
   function attachArgDrag(argEl, argId) {
@@ -1427,17 +1514,17 @@ Responde ÚNICAMENTE en JSON válido con este formato:
 
     const btnMd = el('button', { class: 'btn btn-primary', type: 'button', text: 'Copiar Typst' });
     btnMd.addEventListener('click', () => {
-      navigator.clipboard.writeText(md).then(() => {
-        btnMd.textContent = 'Copiado';
+      navigator.clipboard.writeText(buildTypst()).then(() => {
+        btnMd.textContent = '¡Copiado!';
         setTimeout(() => { btnMd.textContent = 'Copiar Typst'; }, 2000);
       });
     });
 
     const btnTxt = el('button', { class: 'btn btn-ghost', type: 'button', text: 'Copiar texto' });
     btnTxt.addEventListener('click', () => {
-      const plain = md.replace(/^#+\s*/gm, '').replace(/^- /gm, '• ');
+      const plain = buildCleanSummary();
       navigator.clipboard.writeText(plain).then(() => {
-        btnTxt.textContent = 'Copiado';
+        btnTxt.textContent = '¡Copiado!';
         setTimeout(() => { btnTxt.textContent = 'Copiar texto'; }, 2000);
       });
     });
@@ -1543,15 +1630,54 @@ Responde ÚNICAMENTE en JSON válido con este formato:
     argsList.append(el('button', { class: 'add-arg-btn', type: 'button', text: '+ Agregar argumento', onclick: estrAddArg }));
     panel.append(argsList);
 
-    const previewPre = el('pre', { text: md });
+    let showingRawTypst = false;
+
+    const visualDoc = el('div', { class: 'export-preview-visual', id: 'export-preview-visual' });
+    updateVisualDoc(visualDoc);
+
+    const previewPre = el('pre', { class: 'export-preview-raw', text: buildTypst(), hidden: true });
+
+    const btnToggle = el('button', {
+      class: 'btn btn-ghost',
+      type: 'button',
+      style: 'min-height:34px;padding:0 12px;font-size:.82rem;',
+      text: '💻 Ver código Typst',
+      onclick: () => {
+        showingRawTypst = !showingRawTypst;
+        if (showingRawTypst) {
+          visualDoc.hidden = true;
+          previewPre.hidden = false;
+          previewPre.textContent = buildTypst();
+          btnToggle.textContent = '🎨 Ver con colores';
+        } else {
+          visualDoc.hidden = false;
+          previewPre.hidden = true;
+          updateVisualDoc(visualDoc);
+          btnToggle.textContent = '💻 Ver código Typst';
+        }
+      },
+    });
+
+    const btnCopy = el('button', {
+      class: 'btn btn-ghost',
+      type: 'button',
+      style: 'min-height:34px;padding:0 12px;font-size:.82rem;',
+      text: 'Copiar',
+      onclick: () => {
+        const textToCopy = showingRawTypst ? buildTypst() : buildCleanSummary();
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          btnCopy.textContent = '¡Copiado!';
+          setTimeout(() => { btnCopy.textContent = 'Copiar'; }, 2000);
+        });
+      },
+    });
+
     const preview = el('div', { class: 'export-preview', id: 'export-preview' },
       el('div', { class: 'export-preview-header' },
-        el('span', { text: 'Vista previa — Typst' }),
-        el('button', {
-          class: 'btn btn-ghost', type: 'button', text: 'Copiar', style: 'min-height:36px;padding:0 14px;font-size:.82rem',
-          onclick: () => { navigator.clipboard.writeText(previewPre.textContent); },
-        }),
+        el('span', { class: 'export-preview-title', text: '✨ Documento final' }),
+        el('div', { class: 'export-preview-actions' }, btnToggle, btnCopy)
       ),
+      visualDoc,
       previewPre,
     );
     panel.append(preview);
@@ -1568,8 +1694,12 @@ Responde ÚNICAMENTE en JSON válido con este formato:
   }
 
   function updateExportPreview(panel, md) {
-    const pre = $('pre', $('#export-preview', panel) || panel);
-    if (pre) pre.textContent = md;
+    const previewEl = $('#export-preview', panel) || $('#export-preview');
+    if (!previewEl) return;
+    const visual = $('#export-preview-visual', previewEl);
+    if (visual && !visual.hidden) updateVisualDoc(visual);
+    const pre = $('pre', previewEl);
+    if (pre) pre.textContent = md || buildTypst();
   }
 
   /* ============================================================
