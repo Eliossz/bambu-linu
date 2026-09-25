@@ -64,6 +64,7 @@ body {
   background: radial-gradient(ellipse 900px 420px at 10% -8%, var(--glow), transparent 68%), var(--bg);
   transition: background-color .45s var(--ease-out), color .45s var(--ease-out);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, label, .step-label, .brand { font-family: Fredoka, Inter, sans-serif; }
@@ -259,7 +260,7 @@ kbd { display: inline-block; padding: 2px 7px; border-radius: 6px; border: 1px s
 .soon-meta { font-size: .85rem !important; font-style: italic; }
 
 /* ---------- 14. PANDA ---------- */
-.corner { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 10; width: 140px; height: 140px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; touch-action: manipulation; }
+.corner { position: fixed; right: calc(16px + env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 10; width: clamp(70px, 18vw, 140px); height: clamp(70px, 18vw, 140px); padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; touch-action: manipulation; }
 .corner:focus-visible { outline: 3px solid var(--bambu); outline-offset: 4px; }
 .panda { width: 100%; height: 100%; overflow: visible; color: var(--text); filter: drop-shadow(0 6px 12px rgba(0,0,0,.20)); animation: breathe 4s ease-in-out infinite; }
 .panda .eyes-closed, .panda .eyes-happy, .panda .bamboo, .panda .zzz, .panda .party { display: none; }
@@ -330,7 +331,7 @@ dialog h2 { margin-bottom: 8px; }
   cursor: grab;
 }
 
-.chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+.chip-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; min-width: 0; max-width: 100%; }
 .chip-remove {
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%;
@@ -690,22 +691,16 @@ dialog h2 { margin-bottom: 8px; }
   /* — Wrap: menos padding inferior (el panda es más chico) — */
   .wrap { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
 
-  /* — Panda esquina: más chico — */
-  .corner { width: 80px; height: 80px; }
-
   /* — Stepper — */
   .step-label { display: none; }
   .step { padding: 0 14px; min-height: 44px; }
   .step-num { width: 28px; height: 28px; font-size: .9rem; }
   .step[aria-current="step"] .step-label { display: inline; }
 
-  /* — Grids/Layouts: 1 columna — */
-  .grid { grid-template-columns: 1fr; }
+  /* — Grids/Layouts: la matriz pasa de 2 columnas + eje a lista apilada (cambio de layout real) — */
   .matrix { grid-template-columns: 1fr; }
   .matrix-wrap { grid-template-columns: 1fr; }
   .axis-y { display: none; }
-  .ramas-grid { grid-template-columns: 1fr 1fr; }
-  .chip-text { max-width: 160px; }
 
   /* — Cuadrantes matrix: menos altura mínima — */
   .cuadrante { min-height: 120px; }
@@ -734,11 +729,8 @@ dialog h2 { margin-bottom: 8px; }
   .export-preview pre { max-height: 220px; }
 }
 @media (max-width: 400px) {
-  .ramas-grid { grid-template-columns: 1fr; }
-  .corner { width: 70px; height: 70px; }
   .wrap { padding: 12px 10px calc(80px + env(safe-area-inset-bottom, 0px)) 10px; }
   .composer { padding: 14px; }
-  .zen-panda-wrap { width: 70px; height: 70px; }
   .zen-timer { font-size: 2.2rem; }
   .chat-title { font-size: 1rem; }
 }
@@ -1041,7 +1033,7 @@ dialog h2 { margin-bottom: 8px; }
 
 /* Panda meditando */
 .zen-panda-wrap {
-  width: 130px; height: 130px;
+  width: clamp(70px, 22vw, 130px); height: clamp(70px, 22vw, 130px);
   animation: zen-breathe 4s ease-in-out infinite;
   flex-shrink: 0;
 }
@@ -1681,8 +1673,9 @@ dialog h2 { margin-bottom: 8px; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 32px;
+  padding: clamp(16px, 5vw, 32px);
   text-align: center;
+  overflow-y: auto;
 }
 .love-card-front {
   background: linear-gradient(135deg, var(--bambu), #5da360);
@@ -1699,7 +1692,7 @@ dialog h2 { margin-bottom: 8px; }
   font-size: 0.95rem;
 }
 .heart-icon {
-  font-size: 5rem;
+  font-size: clamp(2.6rem, 11vw, 5rem);
   animation: pulse-heart 2.5s infinite ease-in-out;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
 }
@@ -1718,9 +1711,9 @@ dialog h2 { margin-bottom: 8px; }
 .linu-card-img {
   width: auto;
   max-width: 90%;
-  height: 200px;
+  height: clamp(110px, 26vw, 200px);
   border-radius: 16px;
-  margin: 16px 0 24px;
+  margin: clamp(10px, 3vw, 16px) 0 clamp(14px, 4vw, 24px);
   box-shadow: 0 8px 16px rgba(0,0,0,0.12);
   object-fit: contain;
 }
