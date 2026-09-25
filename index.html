@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Bambú Linu</title>
+  <meta name="description" content="Organiza tus pensamientos con el método Bambú Linu">
+  <meta name="theme-color" content="#7BC47F">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Bambú Linu">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Banner de aviso sin conexión -->
+  <aside id="banner-offline" class="banner-offline" hidden role="status" aria-live="polite">
+    <span aria-hidden="true">📡</span>
+    <span>Modo sin conexión: Puedes escribir y organizar tus pensamientos. Las funciones de IA requieren conexión a internet.</span>
+  </aside>
+
+  <!-- Carta de Bienvenida -->
+  <div id="welcome-overlay" class="welcome-overlay" aria-modal="true" role="dialog">
+    <div class="love-card-container">
+      <div class="love-card" id="love-card">
+        <div class="love-card-front">
+          <span class="heart-icon" aria-hidden="true">💌</span>
+          <h2>Tienes un mensaje</h2>
+          <p>Toca para abrir</p>
+        </div>
+        <div class="love-card-inside">
+          <h2>De Elio para Manu</h2>
+          <img src="linu.png" alt="Linu" class="linu-card-img">
+          <button id="welcome-enter-btn" class="btn btn-primary" type="button">Empezar</button>
+        </div>
+      </div>
+    </div>
+  </div>  <!-- Fondo: hojas de bambú -->
+  <div class="leaves" id="hojas" aria-hidden="true"></div>
+
+  <!-- Lienzo de confeti (Estructurar / Celebraciones) -->
+  <canvas id="confeti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Transición de tema (círculo expansivo) -->
+  <div class="theme-ripple" id="tema-ripple" aria-hidden="true"></div>
+
+  <!-- Toast flotante para Deshacer -->
+  <aside id="toast-undo" class="toast-undo" hidden role="status" aria-live="polite">
+    <span class="toast-text">Acción realizada.</span>
+    <button id="toast-undo-btn" class="btn btn-primary btn-sm" type="button">Deshacer</button>
+    <button id="toast-close-btn" class="toast-close" type="button" aria-label="Cerrar notificación"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+  </aside>
+
+  <div class="wrap">
+    <!-- Bambú de fondo -->
+    <div class="bg-bamboos" aria-hidden="true">
+      <div class="bg-bamboo b1">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
+      <div class="bg-bamboo b2">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
+      <div class="bg-bamboo b3">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
+      <div class="bg-bamboo b4">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
+      <div class="bg-bamboo b5">
+        <div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div><div class="segment"></div>
+      </div>
+    </div>
+
+    <!-- Panda rodante adorable -->
+    <div class="rolling-panda-container" aria-hidden="true">
+      <div class="rolling-panda-bounce">
+        <div class="rolling-panda">
+          <svg viewBox="0 0 120 120" class="panda-svg">
+            <!-- Cuerpo circular (bolita) -->
+            <circle cx="60" cy="60" r="48" fill="#FBFAF6" stroke="#1E1E24" stroke-width="2.5"/>
+            <!-- Orejas -->
+            <circle cx="28" cy="28" r="14" fill="#1E1E24"/>
+            <circle cx="92" cy="28" r="14" fill="#1E1E24"/>
+            <!-- Interior orejas -->
+            <circle cx="28" cy="28" r="6" fill="#444"/>
+            <circle cx="92" cy="28" r="6" fill="#444"/>
+            <!-- Manchas de ojos -->
+            <ellipse cx="42" cy="52" rx="12" ry="14" fill="#1E1E24" transform="rotate(10 42 52)"/>
+            <ellipse cx="78" cy="52" rx="12" ry="14" fill="#1E1E24" transform="rotate(-10 78 52)"/>
+            <!-- Ojos blancos con pupilas y brillo -->
+            <circle cx="43" cy="51" r="5.5" fill="#fff"/>
+            <circle cx="77" cy="51" r="5.5" fill="#fff"/>
+            <circle cx="44" cy="50" r="3" fill="#1E1E24"/>
+            <circle cx="78" cy="50" r="3" fill="#1E1E24"/>
+            <circle cx="45" cy="48.5" r="1.2" fill="#fff"/>
+            <circle cx="79" cy="48.5" r="1.2" fill="#fff"/>
+            <!-- Mejillas rosadas -->
+            <circle cx="30" cy="66" r="7" fill="#FFB8B8" opacity=".7"/>
+            <circle cx="90" cy="66" r="7" fill="#FFB8B8" opacity=".7"/>
+            <!-- Nariz -->
+            <ellipse cx="60" cy="64" rx="5" ry="3.5" fill="#1E1E24"/>
+            <!-- Sonrisa -->
+            <path d="M52 70 Q60 78 68 70" fill="none" stroke="#1E1E24" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Patitas (se ven por abajo del cuerpo) -->
+            <ellipse cx="40" cy="100" rx="10" ry="7" fill="#1E1E24"/>
+            <ellipse cx="80" cy="100" rx="10" ry="7" fill="#1E1E24"/>
+            <!-- Almohadillas de las patitas -->
+            <ellipse cx="40" cy="100" rx="5" ry="3.5" fill="#FFB8B8"/>
+            <ellipse cx="80" cy="100" rx="5" ry="3.5" fill="#FFB8B8"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <header class="top">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M4 16C4 9 8 4 16 4c0 8-5 12-12 12Z"/><path d="M4 16c1.5-3.5 4-6 8.5-8"/></svg></span>
+        <h1>Bambú Linu</h1>
+      </div>
+      <div class="top-actions">
+        <!-- Botón Panda Sabio (Chat con IA) -->
+        <button id="chat-btn" class="btn btn-ghost btn-icon" type="button" aria-label="Consultar al Panda Sabio">
+          <span aria-hidden="true">🐼</span>
+          <span class="chat-label">Sabio</span>
+        </button>
+        <!-- Botón Zen Panda -->
+        <button id="zen-btn" class="btn btn-ghost btn-icon" type="button" aria-label="Abrir modo Zen Panda">
+          <span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 3c2 2.4 2 5.5 0 8.3C8 8.5 8 5.4 10 3Z"/><path d="M3.5 8c3 .4 5.3 2.2 6.5 5-3.4.3-5.7-1.6-6.5-5ZM16.5 8c-3 .4-5.3 2.2-6.5 5 3.4.3 5.7-1.6 6.5-5Z"/><path d="M4 15.5c1.6-2 3.7-3 6-3s4.4 1 6 3"/></svg></span>
+          <span class="zen-label">Zen</span>
+        </button>
+        <!-- Botón Configuración (API Gemini) -->
+        <button id="config-btn" class="btn btn-ghost btn-icon" type="button" aria-label="Configuración de IA Gemini">
+          <span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.7v2M10 15.3v2M17.3 10h-2M4.7 10h-2M15.2 4.8l-1.4 1.4M6.2 13.8l-1.4 1.4M15.2 15.2l-1.4-1.4M6.2 6.2 4.8 4.8"/></svg></span>
+        </button>
+        <!-- Botón Tema claro/oscuro -->
+        <button id="tema" class="btn btn-icon" type="button" aria-label="Cambiar modo de color">
+          <span class="tema-sun" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.4 4.6l-1.4 1.4M6 14l-1.4 1.4M15.4 15.4 14 14M6 6 4.6 4.6"/></svg></span>
+          <span class="tema-moon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z"/></svg></span>
+          <span class="tema-label">Modo oscuro</span>
+        </button>
+        <!-- Botón Instalar PWA -->
+        <button id="install-btn" class="btn btn-ghost btn-icon" type="button" hidden aria-label="Instalar Bambú Linu">
+          <span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M10 2v10M6 8l4 4 4-4M3 14v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2"/></svg></span>
+          <span class="install-label">Instalar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stepper de 4 pasos -->
+    <nav aria-label="Pasos del método">
+      <ol class="stepper" role="tablist">
+        <li role="presentation">
+          <button class="step" type="button" role="tab" aria-controls="paso-1" id="tab-1">
+            <span class="step-num">1</span>
+            <span class="step-label">Capturar</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="step" type="button" role="tab" aria-controls="paso-2" id="tab-2">
+            <span class="step-num">2</span>
+            <span class="step-label">Agrupar</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="step" type="button" role="tab" aria-controls="paso-3" id="tab-3">
+            <span class="step-num">3</span>
+            <span class="step-label">Priorizar</span>
+          </button>
+        </li>
+        <li role="presentation">
+          <button class="step" type="button" role="tab" aria-controls="paso-4" id="tab-4">
+            <span class="step-num">4</span>
+            <span class="step-label">Estructurar</span>
+          </button>
+        </li>
+      </ol>
+      <div class="stepper-track" aria-hidden="true">
+        <div class="stepper-fill" id="stepper-fill"></div>
+      </div>
+    </nav>
+
+    <main class="panels">
+
+      <!-- PASO 1: Capturar -->
+      <section class="panel" id="paso-1" role="tabpanel" aria-labelledby="tab-1">
+        <div class="hero">
+          <div class="composer glass">
+            <label for="nuevo">¿Qué tienes en la cabeza?</label>
+            <textarea id="nuevo" rows="2" placeholder="Escribe un pensamiento y presiona Enter…"></textarea>
+            <div class="row">
+              <small>Enter agrega · Shift+Enter = nueva línea</small>
+              <button id="agregar" class="btn btn-primary" type="button">
+                <span aria-hidden="true">+</span> Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="search-wrap">
+            <span class="search-icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m17 17-4.3-4.3"/></svg></span>
+            <input id="buscar" type="search" placeholder="Buscar pensamientos" aria-label="Buscar pensamientos" autocomplete="off">
+          </div>
+          <span id="contador" class="pill" aria-live="polite" aria-atomic="true"></span>
+          <button id="borrar-todo" class="btn btn-ghost" type="button">Borrar todo</button>
+        </div>
+        <p id="vacio" class="empty" hidden></p>
+        <ul id="lista" class="grid" aria-label="Pensamientos capturados"></ul>
+      </section>
+
+      <!-- PASO 2: Agrupar (renderizado dinámicamente) -->
+      <section class="panel" id="paso-2" role="tabpanel" aria-labelledby="tab-2" hidden></section>
+
+      <!-- PASO 3: Priorizar (renderizado dinámicamente) -->
+      <section class="panel" id="paso-3" role="tabpanel" aria-labelledby="tab-3" hidden></section>
+
+      <!-- PASO 4: Estructurar (renderizado dinámicamente) -->
+      <section class="panel" id="paso-4" role="tabpanel" aria-labelledby="tab-4" hidden></section>
+
+    </main>
+  </div>
+
+  <!-- Panda mascota (esquina inferior derecha) -->
+  <button id="panda-btn" class="corner" type="button" aria-label="Acariciar al panda">
+    <svg id="panda" class="panda" viewBox="0 0 120 120" data-state="sleeping" aria-hidden="true" focusable="false">
+      <circle cx="26" cy="28" r="14" fill="#1E1E24"/>
+      <circle cx="94" cy="28" r="14" fill="#1E1E24"/>
+      <circle cx="60" cy="62" r="42" fill="#FBFAF6" stroke="#1E1E24" stroke-width="2.5"/>
+      <ellipse cx="42" cy="58" rx="10" ry="13" fill="#1E1E24" transform="rotate(20 42 58)"/>
+      <ellipse cx="78" cy="58" rx="10" ry="13" fill="#1E1E24" transform="rotate(-20 78 58)"/>
+      <!-- Ojos abiertos normales -->
+      <g class="eyes-open">
+        <circle cx="43" cy="57" r="4.5" fill="#fff"/>
+        <circle cx="77" cy="57" r="4.5" fill="#fff"/>
+        <g class="pupils">
+          <circle cx="43" cy="57" r="2.4" fill="#1E1E24"/>
+          <circle cx="77" cy="57" r="2.4" fill="#1E1E24"/>
+        </g>
+      </g>
+      <!-- Ojos cerrados (dormido) -->
+      <g class="eyes-closed" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+        <path d="M36 59q6 5 12 0"/><path d="M72 59q6 5 12 0"/>
+      </g>
+      <!-- Ojos felices (celebrando) -->
+      <g class="eyes-happy" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+        <path d="M36 61q6-7 12 0"/><path d="M72 61q6-7 12 0"/>
+      </g>
+      <!-- Ojos meditando (Zen) -->
+      <g class="eyes-zen" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+        <path d="M38 57q5 0 10 0"/><path d="M74 57q5 0 10 0"/>
+      </g>
+      <!-- Ojos pensando con IA -->
+      <g class="eyes-thinking">
+        <circle cx="43" cy="54" r="4.5" fill="#fff"/>
+        <circle cx="77" cy="54" r="4.5" fill="#fff"/>
+        <circle cx="43" cy="53" r="2.4" fill="#1E1E24"/>
+        <circle cx="77" cy="53" r="2.4" fill="#1E1E24"/>
+        <path d="M37 49q6-4 12 0" fill="none" stroke="#1E1E24" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M71 49q6-4 12 0" fill="none" stroke="#1E1E24" stroke-width="1.8" stroke-linecap="round"/>
+      </g>
+      <circle cx="30" cy="74" r="6" fill="#FFB8B8" opacity=".85"/>
+      <circle cx="90" cy="74" r="6" fill="#FFB8B8" opacity=".85"/>
+      <ellipse cx="60" cy="69" rx="6" ry="4.5" fill="#1E1E24"/>
+      <path class="mouth" d="M54 76q6 6 12 0" fill="none" stroke="#1E1E24" stroke-width="2.5" stroke-linecap="round"/>
+      <g class="bamboo">
+        <rect x="53" y="82" width="14" height="36" rx="4" fill="#7BC47F"/>
+        <path d="M53 94h14M53 106h14" stroke="#4f9f55" stroke-width="2"/>
+        <path d="M67 88q14-6 16-18q-14 2-16 18z" fill="#7BC47F"/>
+      </g>
+      <g class="party">
+        <circle cx="14" cy="24" r="4" fill="#7BC47F"/>
+        <circle cx="106" cy="20" r="4" fill="#FFB8B8" style="animation-delay:.2s"/>
+        <circle cx="8"  cy="60" r="3" fill="#F6D97A" style="animation-delay:.4s"/>
+        <circle cx="112" cy="56" r="3" fill="#9CC9F0" style="animation-delay:.1s"/>
+        <circle cx="60" cy="6"  r="4" fill="#C9B3F0" style="animation-delay:.3s"/>
+      </g>
+      <text class="zzz"    x="78" y="32" font-size="18" fill="currentColor">z</text>
+      <text class="zzz z2" x="92" y="18" font-size="14" fill="currentColor">z</text>
+    </svg>
+    <span class="panda-label" aria-hidden="true">¡Hola!</span>
+  </button>
+
+  <!-- Diálogo: Borrar todo -->
+  <dialog id="confirmar" aria-labelledby="dlg-titulo">
+    <form method="dialog">
+      <h2 id="dlg-titulo">¿Borrar todos los pensamientos?</h2>
+      <p>Se eliminarán de este dispositivo y no se podrán recuperar.</p>
+      <div class="row row-end">
+        <button class="btn btn-ghost" value="cancel">Cancelar</button>
+        <button class="btn btn-danger" value="ok">Sí, borrar todo</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Diálogo: Configuración Google Gemini -->
+  <dialog id="config-dlg" class="config-dialog" aria-labelledby="config-title">
+    <div class="config-inner">
+      <div class="config-header">
+        <h2 id="config-title"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.7v2M10 15.3v2M17.3 10h-2M4.7 10h-2M15.2 4.8l-1.4 1.4M6.2 13.8l-1.4 1.4M15.2 15.2l-1.4-1.4M6.2 6.2 4.8 4.8"/></svg> Configuración de Gemini</h2>
+        <button id="config-close-btn" class="btn-close" type="button" aria-label="Cerrar configuración"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+      </div>
+
+      <div class="config-field">
+        <label for="cfg-apikey">Google Gemini API Key</label>
+        <div class="input-pass-wrap">
+          <input id="cfg-apikey" type="password" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+          <button id="cfg-toggle-vis" class="btn-toggle-vis" type="button" aria-label="Mostrar u ocultar clave"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10Z"/><circle cx="10" cy="10" r="2.3"/></svg></button>
+        </div>
+        <small class="field-hint">
+          Obtén tu clave gratuita en <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio <svg class="icon icon-inline" aria-hidden="true" viewBox="0 0 20 20"><path d="M8.5 11.5 15 5M9.5 4.5H15v5.5M15.5 11v3.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3.5"/></svg></a>.
+        </small>
+      </div>
+
+      <!-- Estado de la conexión -->
+      <div id="cfg-status" class="config-status" role="status" aria-live="polite"></div>
+
+      <div class="config-actions">
+        <button id="cfg-test-btn" class="btn btn-ghost" type="button">Probar conexión</button>
+        <button id="cfg-save-btn" class="btn btn-primary" type="button">Guardar cambios</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Diálogo: Confirmar Sugerencia IA -->
+  <dialog id="ia-sugerencias-dlg" class="suggestion-dialog" aria-labelledby="ia-sug-title">
+    <div class="suggestion-inner">
+      <div class="suggestion-header">
+        <h2 id="ia-sug-title"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M9 2c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5C7.5 6 8.5 5 9 2Z"/><path d="M15.5 12c.3 1.6.9 2.2 2.5 2.5-1.6.3-2.2.9-2.5 2.5-.3-1.6-.9-2.2-2.5-2.5 1.6-.3 2.2-.9 2.5-2.5Z"/></svg> Sugerencia de la IA</h2>
+        <span class="suggestion-badge">Solo sugerencia</span>
+      </div>
+      <p id="ia-sug-desc" class="suggestion-desc"></p>
+      <div id="ia-sug-content" class="suggestion-content"></div>
+      <div class="suggestion-actions">
+        <button id="ia-sug-cancel" class="btn btn-ghost" type="button">Descartar</button>
+        <button id="ia-sug-apply" class="btn btn-primary" type="button">Aplicar sugerencia</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Overlay: Modo Zen Panda -->
+  <div id="zen-overlay" class="zen-overlay" hidden aria-modal="true" role="dialog" aria-labelledby="zen-titulo">
+    <div class="zen-inner">
+      <!-- Panda meditando (SVG inline) -->
+      <div class="zen-panda-wrap" aria-hidden="true">
+        <svg class="zen-panda-svg" viewBox="0 0 120 130" aria-hidden="true">
+          <ellipse cx="38" cy="118" rx="22" ry="10" fill="#1E1E24"/>
+          <ellipse cx="82" cy="118" rx="22" ry="10" fill="#1E1E24"/>
+          <ellipse cx="60" cy="100" rx="32" ry="28" fill="#FBFAF6" stroke="#1E1E24" stroke-width="2"/>
+          <ellipse cx="28" cy="102" rx="12" ry="7" fill="#1E1E24" transform="rotate(-20 28 102)"/>
+          <ellipse cx="92" cy="102" rx="12" ry="7" fill="#1E1E24" transform="rotate(20 92 102)"/>
+          <ellipse cx="38" cy="114" rx="14" ry="7" fill="#FBFAF6"/>
+          <ellipse cx="82" cy="114" rx="14" ry="7" fill="#FBFAF6"/>
+          <circle cx="26" cy="28" r="14" fill="#1E1E24"/>
+          <circle cx="94" cy="28" r="14" fill="#1E1E24"/>
+          <circle cx="60" cy="62" r="42" fill="#FBFAF6" stroke="#1E1E24" stroke-width="2.5"/>
+          <ellipse cx="42" cy="58" rx="10" ry="13" fill="#1E1E24" transform="rotate(20 42 58)"/>
+          <ellipse cx="78" cy="58" rx="10" ry="13" fill="#1E1E24" transform="rotate(-20 78 58)"/>
+          <g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+            <path d="M38 57q5 0 10 0"/><path d="M74 57q5 0 10 0"/>
+          </g>
+          <circle cx="30" cy="74" r="6" fill="#FFB8B8" opacity=".85"/>
+          <circle cx="90" cy="74" r="6" fill="#FFB8B8" opacity=".85"/>
+          <ellipse cx="60" cy="69" rx="6" ry="4.5" fill="#1E1E24"/>
+          <path d="M55 76q5 4 10 0" fill="none" stroke="#1E1E24" stroke-width="2" stroke-linecap="round"/>
+          <circle class="zen-aura" cx="60" cy="70" r="52" fill="none" stroke="#7BC47F" stroke-width="1.5" opacity=".4"/>
+          <circle class="zen-aura zen-aura-2" cx="60" cy="70" r="58" fill="none" stroke="#7BC47F" stroke-width="1" opacity=".2"/>
+        </svg>
+      </div>
+
+      <h2 id="zen-titulo" class="zen-title">Modo Zen Panda</h2>
+      <p class="zen-desc">Escribe libremente durante 10 minutos. Sin juzgar. Sin borrar.</p>
+
+      <!-- Temporizador -->
+      <div class="zen-timer-wrap" aria-live="polite" aria-atomic="true">
+        <span id="zen-timer" class="zen-timer">10:00</span>
+      </div>
+
+      <!-- Área de escritura -->
+      <textarea id="zen-textarea" class="zen-textarea"
+        placeholder="Empieza a escribir… el panda meditará contigo."
+        aria-label="Área de escritura libre Zen Panda"></textarea>
+
+      <!-- Controles -->
+      <div class="zen-controls">
+        <button id="zen-start"     class="btn btn-primary" type="button">Comenzar</button>
+        <button id="zen-pause"     class="btn btn-ghost"   type="button" hidden>Pausar</button>
+        <button id="zen-resume"    class="btn btn-ghost"   type="button" hidden>Continuar</button>
+        <button id="zen-ai-finish" class="btn btn-primary" type="button" hidden><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M9 2c.5 3 1.5 4 4.5 4.5-3 .5-4 1.5-4.5 4.5-.5-3-1.5-4-4.5-4.5C7.5 6 8.5 5 9 2Z"/><path d="M15.5 12c.3 1.6.9 2.2 2.5 2.5-1.6.3-2.2.9-2.5 2.5-.3-1.6-.9-2.2-2.5-2.5 1.6-.3 2.2-.9 2.5-2.5Z"/></svg> Separar con IA</button>
+        <button id="zen-finish"    class="btn btn-ghost"   type="button" hidden>Terminar ahora</button>
+        <button id="zen-close"     class="btn btn-ghost"   type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel lateral: Panda Sabio (Chat con contexto de tarjetas) -->
+  <aside id="chat-drawer" class="chat-drawer" hidden aria-modal="true" role="dialog" aria-labelledby="chat-title">
+    <div class="chat-drawer-inner">
+      <div class="chat-header">
+        <div class="chat-brand">
+          <span class="chat-avatar" aria-hidden="true">🐼</span>
+          <div>
+            <h2 id="chat-title" class="chat-title">Panda Sabio</h2>
+            <span class="chat-status">Al servicio de la Señorita Manu 🎋</span>
+          </div>
+        </div>
+        <button id="chat-close-btn" class="btn-close" type="button" aria-label="Cerrar chat"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M5 5l10 10M15 5 5 15"/></svg></button>
+      </div>
+
+      <!-- Chips de preguntas rápidas -->
+      <div class="chat-quick-chips" role="group" aria-label="Preguntas rápidas">
+        <button class="chat-chip" type="button" data-prompt="¿Qué patrones o temas recurrentes ves en mis ideas actuales?"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m17 17-4.3-4.3"/></svg> Ver patrones</button>
+        <button class="chat-chip" type="button" data-prompt="Según mis pensamientos, ¿cuál debería ser mi prioridad número 1 hoy y por qué?"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M11 2 4 12h5l-1 6 8-11h-5l1-5Z"/></svg> ¿Por dónde empiezo?</button>
+        <button class="chat-chip" type="button" data-prompt="¿Qué ideas o preocupaciones podría eliminar o postergar para tener más paz mental?"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M4 16C4 9 8 4 16 4c0 8-5 12-12 12Z"/><path d="M4 16c1.5-3.5 4-6 8.5-8"/></svg> Aligerar carga</button>
+      </div>
+
+      <!-- Historial de mensajes -->
+      <div id="chat-messages" class="chat-messages" role="log" aria-live="polite"></div>
+
+      <!-- Entrada de texto del chat -->
+      <div class="chat-input-area">
+        <textarea id="chat-input" class="chat-textarea" rows="2" placeholder="Pregúntele al Panda Sabio sobre sus ideas, Señorita Manu…" aria-label="Mensaje para el Panda Sabio"></textarea>
+        <button id="chat-send-btn" class="btn btn-primary btn-icon" type="button" aria-label="Enviar mensaje">
+          <span>Enviar</span>
+          <span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M17.5 2.5 2 8.8l6.2 2.4M17.5 2.5 11.4 18l-3.2-6.8M17.5 2.5 8.2 11.2"/></svg></span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
